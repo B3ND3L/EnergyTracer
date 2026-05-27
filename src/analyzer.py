@@ -8,6 +8,8 @@ import pandas as pd
 from src.utilities.parser import parse_arguments
 
 from .analysis.generate_report import generate_pr_report
+from .analysis.utils.asciidoc_writer import AsciidocWriter
+from .analysis.utils.markdown_writer import MarkdownWriter
 from .utilities import log
 
 _DEFAULT_ANALYSIS_DIR = Path("results")
@@ -40,7 +42,7 @@ def main(args):
     ANALYSIS_DIR = Path(args.path) / _DEFAULT_ANALYSIS_DIR
 
     try:
-        process_csv_files(Path(args.path), verbose=args.verbose)
+        process_csv_files(Path(args.path), args.output_format, verbose=args.verbose)
     except KeyboardInterrupt:
         log.warn("Analysis interrupted by user (Ctrl+C).")
         return 0
@@ -55,7 +57,7 @@ def main(args):
     return 0
 
 
-def process_csv_files(input_dir: Path, verbose: bool = False) -> None:
+def process_csv_files(input_dir: Path, output_format: str, verbose: bool = False) -> None:
     """
     Scan a directory for CSV files, classify them by profiler / data type /
     smell type, merge them, and generate the statistical reports.
@@ -105,7 +107,7 @@ def process_csv_files(input_dir: Path, verbose: bool = False) -> None:
     if verbose:
         log.header("PR Report Generation")
 
-    generate_statistical_reports(merged_file_paths, verbose=verbose)
+    generate_statistical_reports(merged_file_paths, output_format, verbose=verbose)
 
 
 def classify_csv_files_by_group(
@@ -219,7 +221,9 @@ def merge_and_save_csv_groups(
 
 
 def generate_statistical_reports(
-    merged_file_paths: dict[tuple, Path], verbose: bool = False
+    merged_file_paths: dict[tuple, Path],
+    output_format: str,
+    verbose: bool = False
 ) -> None:
     """
     Generate a Percentage-Reduction (PR) Markdown report for every
@@ -262,15 +266,28 @@ def generate_statistical_reports(
             )
             continue
 
-        report_content = generate_pr_report(
-            df_with_smell, df_without_smell, profiler, data_type, verbose
-        )
-        report_file = ANALYSIS_DIR / data_type / profiler / f"{profiler}_report.md"
+        report_content, report_file = report_asciidoc(df_with_smell, df_without_smell, profiler, data_type, verbose) \
+            if output_format == "asciidoc" \
+            else report_md(df_with_smell, df_without_smell, profiler, data_type, verbose)
+
         # Force UTF-8 to avoid Windows default code page (e.g. cp1252) crashes.
         report_file.write_text(report_content, encoding="utf-8")
         if verbose:
             log.ok(f"Report saved → {report_file}")
 
+def report_md(df_with_smell, df_without_smell, profiler, data_type, verbose) -> tuple[str, str]:
+    report_content = generate_pr_report(
+        MarkdownWriter(), df_with_smell, df_without_smell, profiler, data_type, verbose
+    )
+    report_file = ANALYSIS_DIR / data_type / profiler / f"{profiler}_report.md"
+    return report_content, report_file
+
+def report_asciidoc(df_with_smell, df_without_smell, profiler, data_type, verbose) -> tuple[str, str]:
+    report_content = generate_pr_report(
+        AsciidocWriter(), df_with_smell, df_without_smell, profiler, data_type, verbose
+    )
+    report_file = ANALYSIS_DIR / data_type / profiler / f"{profiler}_report.asciidoc"
+    return report_content, report_file
 
 def cli():
     """

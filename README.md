@@ -3,7 +3,7 @@
 </p>
 
 
-[![CI](https://github.com/fstormacq/EnergyTracer/actions/workflows/main.yaml/badge.svg)](https://github.com/fstormacq/EnergyTracer/actions/workflows/main.yaml)
+[![CI](https://github.com/green-code-initiative/EnergyTracer/actions/workflows/main.yaml/badge.svg)](https://github.com/green-code-initiative/EnergyTracer/actions/workflows/main.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)]()
 [![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python)](https://python.org)
@@ -265,10 +265,11 @@ The report is designed to be directly copy-pasted into a GitHub Pull Request des
 
 ### Analyzer Command-Line Options
 
-| Flag | Description | Default |
-|---|---|---|
-| `-p`, `--path` | Input directory containing the CSV output | `output` |
-| `-v`, `--verbose` | Enable verbose output | off |
+| Flag                  | Description                                         | Default    |
+|-----------------------|-----------------------------------------------------|------------|
+| `-o, --output-format` | Output format, possible values : markdown, asciidoc | `markdown` |
+| `-p`, `--path`        | Input directory containing the CSV output           | `output`   |
+| `-v`, `--verbose`     | Enable verbose output                               | off        |
 
 ### Sample Report Output
 
