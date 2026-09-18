@@ -52,7 +52,7 @@ def generate_pr_report(
 
     Inputs
     ------
-        writer: A DocWriter implementation controlling the output format.
+        doc_writer: A DocWriter implementation controlling the output format.
         df_with: DataFrame of measurements *with* the code smell.
         df_without: DataFrame of measurements *without* the code smell.
         profiler: Profiler name (e.g. "mac-silicon", "carbon").

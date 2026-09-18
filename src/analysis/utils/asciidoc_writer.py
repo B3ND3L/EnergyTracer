@@ -35,7 +35,7 @@ class AsciidocWriter(DocWriter):
         self._report_content.append("\n'''\n\n")
 
     def add_link(self, url: str, title: str) -> None:
-        self._report_content.append(f"[{title}]({url})")
+        self._report_content.append(f"{url}[{title}]")
 
     def add_list(self, elements: list) -> None:
         for text in elements:

@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from analysis.utils.markdown_writer import MarkdownWriter
 from src.analysis.generate_report import _fmt_pvalue, generate_pr_report
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -59,7 +60,7 @@ class TestGeneratePrReport:
         df_with = _make_df(rng.normal(10, 1, 30).tolist())
         df_without = _make_df(rng.normal(10, 1, 30).tolist())
 
-        report = generate_pr_report(df_with, df_without, "mac-silicon", "cleaned")
+        report = generate_pr_report(MarkdownWriter(), df_with, df_without, "mac-silicon", "cleaned")
 
         assert "## Energy Report" in report
         assert "`mac-silicon`" in report
@@ -74,7 +75,7 @@ class TestGeneratePrReport:
         df_with = _make_df(rng.normal(100, 2, 50).tolist())
         df_without = _make_df(rng.normal(50, 2, 50).tolist())
 
-        report = generate_pr_report(df_with, df_without, "mac-silicon", "cleaned")
+        report = generate_pr_report(MarkdownWriter(), df_with, df_without, "mac-silicon", "cleaned")
 
         # Table header must be present
         assert "| Metric |" in report
@@ -91,7 +92,7 @@ class TestGeneratePrReport:
         df_with = _make_df(values)
         df_without = _make_df(values)
 
-        report = generate_pr_report(df_with, df_without, "mac-silicon", "cleaned")
+        report = generate_pr_report(MarkdownWriter(), df_with, df_without, "mac-silicon", "cleaned")
 
         assert "| Metric |" not in report
         assert "No statistically significant differences" in report
@@ -107,7 +108,7 @@ class TestGeneratePrReport:
             rng.normal(50, 2, 50).tolist(), ane=rng.normal(2, 0.5, 50).tolist()
         )
 
-        report = generate_pr_report(df_with, df_without, "carbon", "cleaned")
+        report = generate_pr_report(MarkdownWriter(), df_with, df_without, "carbon", "cleaned")
 
         assert "`co2_eq`" in report
         # ane_mj should NOT appear as a metric name
@@ -118,14 +119,14 @@ class TestGeneratePrReport:
         df_with = _make_df(rng.normal(100, 2, 50).tolist())
         df_without = _make_df(rng.normal(50, 2, 50).tolist())
 
-        report = generate_pr_report(df_with, df_without, "mac-silicon", "cleaned")
+        report = generate_pr_report(MarkdownWriter(), df_with, df_without, "mac-silicon", "cleaned")
 
         assert "Δ mean" in report
         assert "Positive" in report
 
     def test_report_is_string(self):
         df = _make_df([1.0, 2.0, 3.0])
-        report = generate_pr_report(df, df, "mac-silicon", "raw")
+        report = generate_pr_report(MarkdownWriter(), df, df, "mac-silicon", "raw")
         assert isinstance(report, str)
 
     def test_missing_metric_columns_handled(self):
@@ -133,7 +134,7 @@ class TestGeneratePrReport:
         df_with = pd.DataFrame({"cpu_mj": [1.0, 2.0, 3.0]})
         df_without = pd.DataFrame({"cpu_mj": [1.0, 2.0, 3.0]})
 
-        report = generate_pr_report(df_with, df_without, "mac-silicon", "cleaned")
+        report = generate_pr_report(MarkdownWriter(), df_with, df_without, "mac-silicon", "cleaned")
 
         assert "## Energy Report" in report
 
@@ -142,7 +143,7 @@ class TestGeneratePrReport:
         df_with = _make_df([5.0])
         df_without = _make_df([5.0])
 
-        report = generate_pr_report(df_with, df_without, "mac-silicon", "cleaned")
+        report = generate_pr_report(MarkdownWriter(), df_with, df_without, "mac-silicon", "cleaned")
 
         # Should still generate a valid report with no table
         assert "## Energy Report" in report

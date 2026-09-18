@@ -24,6 +24,7 @@ def main(args):
         args: Namespace object from argparse containing:
             - path (str): path to the directory containing output CSV files.
             - verbose (bool): whether to display progress and debug information.
+            - output_format (str): format of the generated reports ("markdown" or "asciidoc").
 
     Output:
         int: process return code (0 on success, 1 on failure).
@@ -68,6 +69,7 @@ def process_csv_files(input_dir: Path, output_format: str, verbose: bool = False
               - an "output/<profiler>/" segment to identify the profiler,
               - a "cleaned" or "raw" segment to identify the data type,
               - "with_smell" or "without_smell" in the filename stem.
+        output_format (str): format of the generated reports ("markdown" or "asciidoc").
         verbose (bool): whether to display progress bars and log messages.
             Defaults to False.
 
@@ -233,6 +235,7 @@ def generate_statistical_reports(
         merged_file_paths (dict[tuple, Path]): mapping from
             (profiler, data_type, smell_type) to the merged CSV path, as
             returned by merge_and_save_csv_groups().
+        output_format (str): format of the generated reports ("markdown" or "asciidoc").
         verbose (bool): whether to log the path of each saved report.
             Defaults to False.
 
@@ -275,14 +278,14 @@ def generate_statistical_reports(
         if verbose:
             log.ok(f"Report saved → {report_file}")
 
-def report_md(df_with_smell, df_without_smell, profiler, data_type, verbose) -> tuple[str, str]:
+def report_md(df_with_smell, df_without_smell, profiler, data_type, verbose) -> tuple[str, Path]:
     report_content = generate_pr_report(
         MarkdownWriter(), df_with_smell, df_without_smell, profiler, data_type, verbose
     )
     report_file = ANALYSIS_DIR / data_type / profiler / f"{profiler}_report.md"
     return report_content, report_file
 
-def report_asciidoc(df_with_smell, df_without_smell, profiler, data_type, verbose) -> tuple[str, str]:
+def report_asciidoc(df_with_smell, df_without_smell, profiler, data_type, verbose) -> tuple[str, Path]:
     report_content = generate_pr_report(
         AsciidocWriter(), df_with_smell, df_without_smell, profiler, data_type, verbose
     )
